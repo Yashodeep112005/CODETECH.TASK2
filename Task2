@@ -1,0 +1,40 @@
+import torch
+from diffusers import StableDiffusionPipeline
+from PIL import Image
+
+# Load the pre-trained Stable Diffusion model
+def load_model():
+    # Load the pre-trained model (Stable Diffusion v1.4 from Hugging Face)
+    model_id = "CompVis/stable-diffusion-v-1-4-original"
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+    pipe = pipe.to("cuda")  # Move the model to GPU for faster generation
+    return pipe
+
+# Generate an image based on the input prompt
+def generate_image(pipe, prompt, output_path="generated_image.png"):
+    print(f"Generating image for prompt: '{prompt}'...")
+    
+    # Use the model to generate the image
+    with torch.no_grad():  # No need to track gradients since we're not training
+        image = pipe(prompt).images[0]
+    
+    # Save the image to a file
+    image.save(output_path)
+    print(f"Image saved to: {output_path}")
+    
+    # Display the generated image
+    image.show()
+
+# Main function to execute the text-to-image generation
+def main():
+    # Load the model
+    pipe = load_model()
+
+    # Get text input from the user
+    prompt = input("Enter a description for the image (e.g., 'A futuristic city at sunset'): ")
+    
+    # Call the image generation function
+    generate_image(pipe, prompt)
+
+if __name__ == "__main__":
+    main()
